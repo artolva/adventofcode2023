@@ -18,12 +18,6 @@ const (
 )
 
 func main() {
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(path)
-
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
@@ -92,23 +86,23 @@ func getNumber(value string) (int, error) {
 		return 0, fmt.Errorf("dissallow")
 	}
 
-	if strings.HasPrefix(value, "one") || strings.HasSuffix(value, "one") {
+	if strings.Contains(value, "one") {
 		return 1, nil
-	} else if strings.HasPrefix(value, "two") || strings.HasSuffix(value, "two") {
+	} else if strings.Contains(value, "two") {
 		return 2, nil
-	} else if strings.HasPrefix(value, "three") || strings.HasSuffix(value, "three") {
+	} else if strings.Contains(value, "three") {
 		return 3, nil
-	} else if strings.HasPrefix(value, "four") || strings.HasSuffix(value, "four") {
+	} else if strings.Contains(value, "four") {
 		return 4, nil
-	} else if strings.HasPrefix(value, "five") || strings.HasSuffix(value, "five") {
+	} else if strings.Contains(value, "five") {
 		return 5, nil
-	} else if strings.HasPrefix(value, "six") || strings.HasSuffix(value, "six") {
+	} else if strings.Contains(value, "six") {
 		return 6, nil
-	} else if strings.HasPrefix(value, "seven") || strings.HasSuffix(value, "seven") {
+	} else if strings.Contains(value, "seven") {
 		return 7, nil
-	} else if strings.HasPrefix(value, "eight") || strings.HasSuffix(value, "eight") {
+	} else if strings.Contains(value, "eight") {
 		return 8, nil
-	} else if strings.HasPrefix(value, "nine") || strings.HasSuffix(value, "nine") {
+	} else if strings.Contains(value, "nine") {
 		return 9, nil
 	}
 
