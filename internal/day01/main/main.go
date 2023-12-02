@@ -58,32 +58,8 @@ func findFirstAndLastDigit(value string) int {
 	for i := 0; i < len(value); i++ {
 		rightKey := maxIndex - i
 
-		if leftVal < 0 {
-			v := splitString[i]
-			checkLeft, err := strconv.Atoi(v)
-			if err == nil {
-				leftString = ""
-				leftVal = checkLeft
-			} else {
-				leftString += v
-				if number, err := getNumber(leftString); err == nil {
-					leftVal = number
-				}
-			}
-		}
-		if rightVal < 0 {
-			v := splitString[rightKey]
-			checkRight, err := strconv.Atoi(v)
-			if err == nil {
-				rightString = ""
-				rightVal = checkRight
-			} else {
-				rightString = fmt.Sprintf("%s%s", v, rightString)
-				if number, err := getNumber(rightString); err == nil {
-					rightVal = number
-				}
-			}
-		}
+		leftVal = setValue(leftVal, splitString, i, leftString)
+		rightVal = setValue(rightVal, splitString, rightKey, rightString)
 
 		if leftVal > -1 && rightVal > -1 {
 			atoi, _ := strconv.Atoi(fmt.Sprintf("%d%d", leftVal, rightVal))
@@ -92,6 +68,23 @@ func findFirstAndLastDigit(value string) int {
 	}
 
 	panic("shouldn't happen")
+}
+
+func setValue(val int, splitString []string, i int, leftBuilder string) int {
+	if val < 0 {
+		v := splitString[i]
+		checkLeft, err := strconv.Atoi(v)
+		if err == nil {
+			leftBuilder = ""
+			val = checkLeft
+		} else {
+			leftBuilder += v
+			if number, err := getNumber(leftBuilder); err == nil {
+				val = number
+			}
+		}
+	}
+	return val
 }
 
 func getNumber(value string) (int, error) {
