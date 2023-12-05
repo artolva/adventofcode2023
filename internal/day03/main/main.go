@@ -111,11 +111,10 @@ func checkNumber(numDetail NumberDetail, symbols map[int][]SymbolDetail) int {
 
 			for _, symbolDetail := range symbolRow {
 				if symbolDetail.x >= leftAnchor && symbolDetail.x <= rightAnchor {
-					if numDetail.rowNumber == 31 {
-						fmt.Printf("=====\nNumDetail %+v\n", numDetail)
-						fmt.Printf("For number %d on row %d with left right anchors %d->%d\n", numDetail.number, numDetail.rowNumber, leftAnchor, rightAnchor)
-						fmt.Printf("Returning %d due to symbol %s on row %d at %d,%d\n", numDetail.number, symbolDetail.symbol, checkRow, symbolDetail.x, symbolDetail.y)
-					}
+					fmt.Printf("=====\nNumDetail %+v\n", numDetail)
+					fmt.Printf("For number %d on row %d with left right anchors %d->%d\n", numDetail.number, numDetail.rowNumber, leftAnchor, rightAnchor)
+					fmt.Printf("Returning %d due to symbol %s on row %d at %d,%d\n", numDetail.number, symbolDetail.symbol, checkRow, symbolDetail.x, symbolDetail.y)
+
 					return numDetail.number
 				}
 			}
