@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -33,6 +34,7 @@ type SeedSet struct {
 }
 
 func main() {
+	now := time.Now()
 	file, scanner := util.GetFile(fileName)
 	defer file.Close()
 
@@ -83,7 +85,9 @@ func main() {
 			lowestNumber = seedSet.seedValue
 		}
 	}
-	fmt.Printf("Lowest location: %d", lowestNumber)
+	fmt.Printf("Lowest location: %d\n", lowestNumber)
+
+	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }
 
 func getKeysFromSet(seedSets []SeedSet, options []MapRef) []SeedSet {
