@@ -22,13 +22,13 @@ const (
 //temperature-to-humidity map:
 //humidity-to-location map:
 
-type MapRef struct {
+type DestinationRef struct {
 	destinationStart int
 	rangeStart       int
 	rangeLength      int
 }
 
-type SeedSet struct {
+type RangeRef struct {
 	seedValue int
 	seedRange int
 }
@@ -40,17 +40,17 @@ func main() {
 
 	scanner.Scan()
 
-	var seedSets []SeedSet
+	var rangeReferences []RangeRef
 	seedPairList := strings.Split(strings.Split(scanner.Text(), ": ")[1], " ")
 	for i := 0; i < len(seedPairList); i = i + 2 {
-		seedSets = append(seedSets, SeedSet{
+		rangeReferences = append(rangeReferences, RangeRef{
 			seedValue: getInt(seedPairList[i]),
 			seedRange: getInt(seedPairList[i+1]),
 		})
 	}
 
 	lowestNumber := -1
-	listMap := make(map[string][]MapRef)
+	listMap := make(map[string][]DestinationRef)
 	scanner.Scan()
 
 	mapHeader := ""
@@ -63,7 +63,7 @@ func main() {
 			mapHeader = strings.Split(textLine, " ")[0]
 		} else {
 			components := strings.Split(textLine, " ")
-			listMap[mapHeader] = append(listMap[mapHeader], MapRef{
+			listMap[mapHeader] = append(listMap[mapHeader], DestinationRef{
 				destinationStart: getInt(components[0]),
 				rangeStart:       getInt(components[1]),
 				rangeLength:      getInt(components[2]),
@@ -72,62 +72,62 @@ func main() {
 
 	}
 
-	seedSets = getKeysFromSet(seedSets, listMap["seed-to-soil"])
-	seedSets = getKeysFromSet(seedSets, listMap["soil-to-fertilizer"])
-	seedSets = getKeysFromSet(seedSets, listMap["fertilizer-to-water"])
-	seedSets = getKeysFromSet(seedSets, listMap["water-to-light"])
-	seedSets = getKeysFromSet(seedSets, listMap["light-to-temperature"])
-	seedSets = getKeysFromSet(seedSets, listMap["temperature-to-humidity"])
-	seedSets = getKeysFromSet(seedSets, listMap["humidity-to-location"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["seed-to-soil"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["soil-to-fertilizer"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["fertilizer-to-water"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["water-to-light"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["light-to-temperature"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["temperature-to-humidity"])
+	rangeReferences = getKeysFromSet(rangeReferences, listMap["humidity-to-location"])
 
-	for _, seedSet := range seedSets {
-		if lowestNumber == -1 || seedSet.seedValue < lowestNumber {
-			lowestNumber = seedSet.seedValue
+	for _, rangeRef := range rangeReferences {
+		if lowestNumber == -1 || rangeRef.seedValue < lowestNumber {
+			lowestNumber = rangeRef.seedValue
 		}
 	}
 	fmt.Printf("Lowest location: %d\n", lowestNumber)
-
+	// SecureBanking#330169
 	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }
 
-func getKeysFromSet(seedSets []SeedSet, options []MapRef) []SeedSet {
-	var resultSet []SeedSet
+func getKeysFromSet(rangeReferences []RangeRef, destinationReferences []DestinationRef) []RangeRef {
+	var resultSet []RangeRef
 	fmt.Println("\n\n\n\n==========================\nRange Start")
 
-	sort.Slice(options, func(i, j int) bool {
-		return options[i].rangeStart < options[j].rangeStart
+	sort.Slice(destinationReferences, func(i, j int) bool {
+		return destinationReferences[i].rangeStart < destinationReferences[j].rangeStart
 	})
-	for _, seedSet := range seedSets {
-		seedStart := seedSet.seedValue
-		seedEnd := seedSet.seedValue + seedSet.seedRange
+	for _, rangeRef := range rangeReferences {
+		seedStart := rangeRef.seedValue
+		seedEnd := rangeRef.seedValue + rangeRef.seedRange
 		fmt.Printf("==========================\nFor Seed Start: %d\nFor Seed End: %d\n", seedStart, seedEnd)
 
-		for _, option := range options {
-			rangeStart := option.rangeStart
-			rangeEnd := rangeStart + option.rangeLength
+		for _, destinationRef := range destinationReferences {
+			rangeStart := destinationRef.rangeStart
+			rangeEnd := rangeStart + destinationRef.rangeLength
 			// encompass
 			if seedStart <= rangeStart && seedEnd >= rangeEnd {
-				resultSet = append(resultSet, SeedSet{
-					seedValue: option.destinationStart,
-					seedRange: option.rangeLength,
+				resultSet = append(resultSet, RangeRef{
+					seedValue: destinationRef.destinationStart,
+					seedRange: destinationRef.rangeLength,
 				})
 			} else if seedStart < rangeStart && seedEnd > rangeStart && seedEnd < rangeEnd {
 				offset := rangeEnd - seedEnd
-				resultSet = append(resultSet, SeedSet{
-					seedValue: option.destinationStart,
-					seedRange: option.rangeLength - offset,
+				resultSet = append(resultSet, RangeRef{
+					seedValue: destinationRef.destinationStart,
+					seedRange: destinationRef.rangeLength - offset,
 				})
 			} else if seedStart > rangeStart && seedStart < rangeEnd && seedEnd > rangeEnd {
 				offset := seedStart - rangeStart
-				resultSet = append(resultSet, SeedSet{
-					seedValue: option.destinationStart + offset,
-					seedRange: option.rangeLength - offset,
+				resultSet = append(resultSet, RangeRef{
+					seedValue: destinationRef.destinationStart + offset,
+					seedRange: destinationRef.rangeLength - offset,
 				})
 			} else if seedStart > rangeStart && seedEnd < rangeEnd {
 				offset := seedStart - rangeStart
-				resultSet = append(resultSet, SeedSet{
-					seedValue: option.destinationStart + offset,
-					seedRange: seedSet.seedRange,
+				resultSet = append(resultSet, RangeRef{
+					seedValue: destinationRef.destinationStart + offset,
+					seedRange: rangeRef.seedRange,
 				})
 			}
 		}
