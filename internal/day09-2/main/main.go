@@ -4,7 +4,6 @@ import (
 	"adventofcode2023/util"
 	"fmt"
 	"log"
-	"math"
 	"time"
 )
 
@@ -27,7 +26,7 @@ func main() {
 
 		values := util.ExtractNumbersByDelimiter(text, " ")
 
-		sequenceProgression := findNextInSequence(values, true)
+		sequenceProgression := findNextInSequence(values)
 
 		fmt.Printf("======Sequence Val: %d\n\n", sequenceProgression)
 		totalSequence = totalSequence + sequenceProgression
@@ -40,19 +39,14 @@ func main() {
 	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }
 
-func findNextInSequence(sequence []int, first bool) int {
+func findNextInSequence(sequence []int) int {
 	var intervals []int
 	sequenceLen := len(sequence)
 	for index := 0; index < sequenceLen-1; index++ {
 		nextVal := sequence[index+1]
 		currentVal := sequence[index]
 
-		if nextVal < currentVal {
-			//fmt.Printf("Next: %d, Last: %d\n", nextVal, currentVal)
-			intervals = append(intervals, -1*int(math.Abs(float64(currentVal)-float64(nextVal))))
-		} else {
-			intervals = append(intervals, nextVal-currentVal)
-		}
+		intervals = append(intervals, nextVal-currentVal)
 	}
 
 	var deeper bool
@@ -73,12 +67,8 @@ func findNextInSequence(sequence []int, first bool) int {
 		fmt.Printf("Check Value: %d is %+v\n", a, a == sequence[0])
 	}
 
-	nextInSequence := -1 * findNextInSequence(intervals, false)
+	nextInSequence := -1 * findNextInSequence(intervals)
 
-	fmt.Printf("Next: %d, Last: %d\n", nextInSequence, firstVal)
-	if firstVal < nextInSequence {
-		return nextInSequence + firstVal
-	}
-
+	fmt.Printf("Next: %d, First: %d\n", nextInSequence, firstVal)
 	return firstVal + nextInSequence
 }

@@ -4,7 +4,6 @@ import (
 	"adventofcode2023/util"
 	"fmt"
 	"log"
-	"math"
 	"time"
 )
 
@@ -47,12 +46,7 @@ func findNextInSequence(sequence []int) int {
 		nextVal := sequence[index+1]
 		currentVal := sequence[index]
 
-		if nextVal < currentVal {
-			//fmt.Printf("Next: %d, Last: %d\n", nextVal, currentVal)
-			intervals = append(intervals, -1*int(math.Abs(float64(currentVal)-float64(nextVal))))
-		} else {
-			intervals = append(intervals, nextVal-currentVal)
-		}
+		intervals = append(intervals, nextVal-currentVal)
 	}
 
 	var deeper bool
@@ -74,11 +68,5 @@ func findNextInSequence(sequence []int) int {
 	}
 
 	nextInSequence := findNextInSequence(intervals)
-	if lastVal < nextInSequence {
-		fmt.Printf("Next: %d, Last: %d\n", nextInSequence, lastVal)
-
-		return nextInSequence + lastVal
-	}
-	fmt.Printf("Next: %d, Last: %d\n", nextInSequence, lastVal)
 	return lastVal + nextInSequence
 }
