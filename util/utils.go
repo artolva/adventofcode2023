@@ -22,16 +22,20 @@ func ExtractNumbersByDelimiter(line, delimiter string) []int {
 	var nextVal string
 	var results []int
 	fmt.Printf("Line: %s\n", line)
-	s := strings.Split(line, ":")[1]
-	split := strings.Split(s, "")
-	for i := 0; i < len(split); i++ {
+	split := strings.Split(line, "")
+	for i := 0; i < len(line); i++ {
 		char := split[i]
+
+		if char == "-" {
+			nextVal = "-"
+			continue
+		}
 
 		if intVal, err := strconv.Atoi(char); err == nil {
 			nextVal = fmt.Sprintf("%s%d", nextVal, intVal)
 		}
 
-		if (i+1) == len(split) || (char != delimiter && split[i+1] == delimiter) {
+		if (i+1) == len(line) || (char != delimiter && split[i+1] == delimiter) {
 			intVal, _ := strconv.Atoi(nextVal)
 			results = append(results, intVal)
 			nextVal = ""

@@ -27,4 +27,5 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }

@@ -52,6 +52,7 @@ func main() {
 
 	index := 0
 	zMapping := make(map[int]int)
+	//zMapping := make(map[int]map[string]int)
 	for {
 		currentIndex := index % len(instructions)
 		instruction := instructions[currentIndex]
@@ -71,11 +72,12 @@ func main() {
 				//fmt.Printf("starting map %s\n", startingMap[i])
 				//fmt.Printf("Index: %d\n", index)
 				//fmt.Printf("CurrentIndex: %+v\n", currentIndex+1 == len(instructions))
+				//zMapping[i][startingMap[i]] = index
 				zMapping[i] = index
 			}
 		}
 
-		//fmt.Printf("index %d and Z Mapping: %+v\n", index, zMapping)
+		fmt.Printf("index %d and Z Mapping: %+v\n", index, zMapping)
 
 		if len(zMapping) == len(startingMap) {
 			break
