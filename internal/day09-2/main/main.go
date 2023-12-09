@@ -41,19 +41,18 @@ func main() {
 
 func findNextInSequence(sequence []int) int {
 	var intervals []int
+	var deeper bool
 	sequenceLen := len(sequence)
 	for index := 0; index < sequenceLen-1; index++ {
 		nextVal := sequence[index+1]
 		currentVal := sequence[index]
 
-		intervals = append(intervals, nextVal-currentVal)
-	}
-
-	var deeper bool
-	for _, interval := range intervals {
-		if interval != 0 {
+		newInterval := nextVal - currentVal
+		if newInterval != 0 {
 			deeper = true
 		}
+
+		intervals = append(intervals, newInterval)
 	}
 
 	firstVal := sequence[0]
