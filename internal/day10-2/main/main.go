@@ -55,20 +55,8 @@ func main() {
 		}
 	}
 
-	var included int
-	fmt.Println("")
-	for y := 0; y < len(pipeMap); y++ {
-		rowMap := pipeMap[y]
-		//var pipeCount int
-		for x := 0; x < len(rowMap); x++ {
-			piece := pipeMap[y][x].piece
-			if piece == "." && isContained(x, y, pipeMap) {
-				piece = "X"
-				included++
-			}
-		}
-	}
-	//isContained(7, 4, pipeMap)
+	topZig := []string{"F", "J"}
+	bottomZig := []string{"7", "L"}
 
 	fmt.Println("UpdatedMap")
 	for y := 0; y < len(pipeMap); y++ {
@@ -80,6 +68,63 @@ func main() {
 		}
 
 	}
+
+	pipeMap[sY][sX].piece = findReplacement(sX, sY, pipeMap)
+
+	var included int
+	fmt.Println("")
+	for y := 0; y < len(pipeMap); y++ {
+		rowMap := pipeMap[y]
+		var pipeCount int
+		var blockSkip string
+		for x := 0; x < len(rowMap); x++ {
+			piece := pipeMap[y][x].piece
+
+			// count top zigs
+			if piece == "F" {
+				blockSkip = piece
+			} else if piece == "J" {
+				if blockSkip[0] == 'F' {
+					pipeCount++
+				}
+				blockSkip = ""
+				continue
+			} else if piece == "L" {
+				blockSkip = piece
+			} else if piece == "7" {
+				if blockSkip[0] == 'L' {
+					pipeCount++
+				}
+				blockSkip = ""
+				continue
+			}
+
+			if piece == "-" {
+				blockSkip += piece
+			}
+
+			if len(blockSkip) > 0 {
+				continue
+			}
+
+			if slices.Contains(topZig, piece) {
+				blockSkip += piece
+			} else if slices.Contains(bottomZig, piece) {
+				blockSkip += piece
+			} else if piece == "|" {
+				pipeCount++
+			} else if piece == "." && pipeCount%2 == 1 {
+				pipeMap[y][x].piece = "X"
+				included++
+			}
+
+			//if piece == "." && isContained(x, y, pipeMap) {
+			//	piece = "X"
+			//	included++
+			//}
+		}
+	}
+	//isContained(7, 4, pipeMap)
 
 	fmt.Printf("\n======\n"+
 		"included: %d\n", included)
@@ -134,15 +179,6 @@ func getDistanceForMap(startX, startY int, pipeMap map[int]map[int]*PipeDetail) 
 	}
 
 	return consumedSpaces
-}
-
-func isContained(x, y int, pipeMap map[int]map[int]*PipeDetail) bool {
-	north := checkNorth(x, y, pipeMap)
-	east := checkEast(x, y, pipeMap)
-	south := checkSouth(x, y, pipeMap)
-	west := checkWest(x, y, pipeMap)
-
-	return north && east && south && west
 }
 
 func delvePipe(curX, curY, oldX, oldY, i int, theMap map[int]map[int]*PipeDetail) ([]PipePosition, error) {
@@ -258,6 +294,34 @@ func findNewCoordinate(curX, curY, oldX, oldY int, pipeDetail *PipeDetail) (int,
 	panic("no coord")
 }
 
+func findReplacement(x, y int, pipeMap map[int]map[int]*PipeDetail) string {
+	top, topOk := pipeMap[y-1][x]
+	right, rightOk := pipeMap[y][x+1]
+	bottom, bottomOk := pipeMap[y+1][x]
+	left, leftOk := pipeMap[y][x-1]
+
+	fromLeft := leftOk && slices.Contains([]string{"-", "F", "L"}, left.piece)
+	fromRight := rightOk && slices.Contains([]string{"-", "J", "7"}, right.piece)
+	fromTop := topOk && slices.Contains([]string{"|", "F", "7"}, top.piece)
+	fromBottom := bottomOk && slices.Contains([]string{"|", "J", "L"}, bottom.piece)
+
+	if fromLeft && fromRight {
+		return "-"
+	} else if fromLeft && fromTop {
+		return "J"
+	} else if fromLeft && fromBottom {
+		return "7"
+	} else if fromTop && fromRight {
+		return "L"
+	} else if fromBottom && fromTop {
+		return "|"
+	} else if fromRight && fromBottom {
+		return "F"
+	}
+
+	panic("why")
+}
+
 func buildMapRow(lineText string) (map[int]*PipeDetail, int) {
 	x := -1
 
@@ -273,258 +337,4 @@ func buildMapRow(lineText string) (map[int]*PipeDetail, int) {
 		}
 	}
 	return rowMap, x
-}
-
-type checkFunc func(x, y int, pipeMap map[int]map[int]*PipeDetail) bool
-
-func checkEastWest(checkX, checkY int, topCorner bool, pipeMap map[int]map[int]*PipeDetail) bool {
-	var steps int
-	var happyLeft, happyRight bool
-	for {
-		if happyLeft && happyRight {
-			return true
-		}
-
-		var checkFn checkFunc
-		if topCorner {
-			checkFn = checkNorth
-		} else {
-			checkFn = checkSouth
-		}
-
-		if !happyLeft {
-			detail, ok := pipeMap[checkY][checkX-steps]
-			if !ok {
-				return false
-			}
-
-			var happyPiece, sadPiece string
-			if topCorner {
-				happyPiece, sadPiece = "F", "L"
-			} else {
-				happyPiece, sadPiece = "L", "F"
-			}
-
-			if detail.piece == "S" || detail.piece == happyPiece {
-				happyLeft = true
-			} else if detail.piece == sadPiece && steps > 0 {
-				fn := checkFn(checkX-steps, checkY, pipeMap)
-				if !fn {
-					return false
-				}
-				happyLeft = fn
-			}
-		}
-
-		if !happyRight {
-			detail, ok := pipeMap[checkY][checkX+steps]
-			if !ok {
-				return false
-			}
-
-			var happyPiece, sadPiece string
-			if topCorner {
-				happyPiece, sadPiece = "7", "J"
-			} else {
-				happyPiece, sadPiece = "J", "7"
-			}
-
-			if detail.piece == "S" || detail.piece == happyPiece {
-				happyRight = true
-			} else if detail.piece == sadPiece && steps > 0 {
-				fn := checkFn(checkX+steps, checkY, pipeMap)
-				if !fn {
-					return false
-				}
-				happyRight = fn
-			}
-		}
-		steps++
-	}
-}
-
-// consider odd encounter #
-func checkNorthSouth(checkX, checkY int, leftCorners bool, pipeMap map[int]map[int]*PipeDetail) bool {
-	var steps int
-	var happyUp, happyDown bool
-	for {
-		if happyUp && happyDown {
-			return true
-		}
-		var checkFn checkFunc
-		if leftCorners {
-			checkFn = checkWest
-		} else {
-			checkFn = checkEast
-		}
-		if !happyUp {
-			detail, ok := pipeMap[checkY-steps][checkX]
-			if !ok {
-				return false
-			}
-
-			var happyPiece, sadPiece string
-			if leftCorners {
-				happyPiece, sadPiece = "F", "7"
-			} else {
-				happyPiece, sadPiece = "7", "F" //FROM J TO F TO FIX 6,6 ON ex2
-			}
-
-			if detail.piece == "S" || detail.piece == happyPiece {
-				happyUp = true
-			} else if detail.piece == sadPiece && steps > 0 {
-				fn := checkFn(checkX, checkY-steps, pipeMap)
-				if !fn {
-					return false
-				}
-				happyUp = fn
-			}
-		}
-
-		if !happyDown {
-			detail, ok := pipeMap[checkY+steps][checkX]
-			if !ok {
-				return false
-			}
-
-			var happyPiece, sadPiece string
-			if leftCorners {
-				happyPiece, sadPiece = "L", "J" //FROM F TO J TO FIX 11,5 ON ex3
-			} else {
-				happyPiece, sadPiece = "J", "L"
-			}
-
-			if detail.piece == "S" || detail.piece == happyPiece {
-				happyDown = true
-			} else if detail.piece == sadPiece && steps > 0 {
-				fn := checkFn(checkX, checkY+steps, pipeMap)
-				if !fn {
-					return false
-				}
-				happyDown = fn
-			}
-		}
-		steps++
-	}
-}
-
-var northList = []string{"F", "7", "S", "-"}
-
-func checkNorth(x, y int, pipeMap map[int]map[int]*PipeDetail) bool {
-	var blockingPiece string
-	for i := y; i >= 0; i-- {
-		detail := pipeMap[i][x]
-		northInclusive := slices.Contains(northList, detail.piece)
-		if len(blockingPiece) > 0 {
-			if blockingPiece == "J" && detail.piece == "7" {
-				blockingPiece = ""
-				continue
-			} else if blockingPiece == "L" && detail.piece == "F" {
-				blockingPiece = ""
-				continue
-			} else if northInclusive {
-				blockingPiece = ""
-			}
-		}
-
-		if detail.piece == "J" || detail.piece == "L" {
-			blockingPiece = detail.piece
-			continue
-		}
-		if detail.isMapTile && northInclusive {
-			return checkEastWest(x, i, true, pipeMap)
-		}
-	}
-	return false
-}
-
-var eastList = []string{"|", "J", "7", "S"}
-
-func checkEast(x, y int, pipeMap map[int]map[int]*PipeDetail) bool {
-	var blockingPiece string
-	for i := x; i < len(pipeMap[y]); i++ {
-		detail := pipeMap[y][i]
-		eastInclusive := slices.Contains(eastList, detail.piece)
-		if len(blockingPiece) > 0 {
-			if blockingPiece == "L" && detail.piece == "J" {
-				blockingPiece = ""
-				continue
-			} else if blockingPiece == "F" && detail.piece == "7" {
-				blockingPiece = ""
-				continue
-			} else if eastInclusive {
-				blockingPiece = ""
-			}
-		}
-
-		if detail.piece == "L" || detail.piece == "F" {
-			blockingPiece = detail.piece
-			continue
-		}
-
-		if detail.isMapTile && eastInclusive {
-			return checkNorthSouth(i, y, false, pipeMap)
-		}
-	}
-	return false
-}
-
-var southList = []string{"L", "J", "S", "-"}
-
-func checkSouth(x, y int, pipeMap map[int]map[int]*PipeDetail) bool {
-	var blockingPiece string
-	for i := y; i < len(pipeMap); i++ {
-		detail := pipeMap[i][x]
-		southInclusive := slices.Contains(southList, detail.piece)
-		if len(blockingPiece) > 0 {
-			if blockingPiece == "F" && detail.piece == "L" {
-				blockingPiece = ""
-				continue
-			} else if blockingPiece == "7" && detail.piece == "J" {
-				blockingPiece = ""
-				continue
-			} else if southInclusive {
-				blockingPiece = ""
-			}
-		}
-
-		if detail.piece == "7" || detail.piece == "F" {
-			blockingPiece = detail.piece
-			continue
-		}
-		if detail.isMapTile && southInclusive {
-			return checkEastWest(x, i, false, pipeMap)
-		}
-	}
-	return false
-}
-
-var westList = []string{"L", "F", "S", "|"}
-
-func checkWest(x, y int, pipeMap map[int]map[int]*PipeDetail) bool {
-	var blockingPiece string
-	for i := x; i > 0; i-- {
-		detail := pipeMap[y][i]
-		westInclusive := slices.Contains(westList, detail.piece)
-		if len(blockingPiece) > 0 {
-			if blockingPiece == "7" && detail.piece == "F" {
-				blockingPiece = ""
-				continue
-			} else if blockingPiece == "J" && detail.piece == "L" {
-				blockingPiece = ""
-				continue
-			} else if westInclusive {
-				blockingPiece = ""
-			}
-		}
-
-		if detail.piece == "7" || detail.piece == "J" {
-			blockingPiece = detail.piece
-			continue
-		}
-		if detail.isMapTile && westInclusive {
-			return checkNorthSouth(i, y, true, pipeMap)
-		}
-	}
-	return false
 }
