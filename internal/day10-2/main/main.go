@@ -2,6 +2,7 @@ package main
 
 import (
 	"adventofcode2023/util"
+	"errors"
 	"fmt"
 	"log"
 	"slices"
@@ -58,9 +59,11 @@ func main() {
 	fmt.Println("")
 	for y := 0; y < len(pipeMap); y++ {
 		rowMap := pipeMap[y]
+		//var pipeCount int
 		for x := 0; x < len(rowMap); x++ {
-			if pipeMap[y][x].piece == "." && isContained(x, y, pipeMap) {
-				pipeMap[y][x].piece = "X"
+			piece := pipeMap[y][x].piece
+			if piece == "." && isContained(x, y, pipeMap) {
+				piece = "X"
 				included++
 			}
 		}
@@ -159,7 +162,10 @@ func delvePipe(curX, curY, oldX, oldY, i int, theMap map[int]map[int]*PipeDetail
 		return nil, fmt.Errorf("ground at %d, %d\n", curX, curY)
 	}
 
-	newX, newY := findNewCoordinate(curX, curY, oldX, oldY, pipe)
+	newX, newY, err := findNewCoordinate(curX, curY, oldX, oldY, pipe)
+	if err != nil {
+		return nil, err
+	}
 
 	if pipePositions, err := delvePipe(newX, newY, curX, curY, i+1, theMap); err != nil {
 		return nil, err
@@ -183,47 +189,69 @@ func getPipePiece(curX int, curY int, theMap map[int]map[int]*PipeDetail) (*Pipe
 	return pipePiece, nil
 }
 
-func findNewCoordinate(curX, curY, oldX, oldY int, pipeDetail *PipeDetail) (int, int) {
+func findNewCoordinate(curX, curY, oldX, oldY int, pipeDetail *PipeDetail) (int, int, error) {
 	east := curX > oldX
 	south := curY > oldY
+	north := curY < oldY
 	west := curX < oldX
 
 	switch pipeDetail.piece {
 	case "|":
+		if east || west {
+			return 0, 0, errors.New("invalid direction")
+		}
+
 		if south {
-			return curX, curY + 1
+			return curX, curY + 1, nil
 		} else {
-			return curX, curY - 1
+			return curX, curY - 1, nil
 		}
 	case "-":
+		if north || south {
+			return 0, 0, errors.New("invalid direction")
+		}
+
 		if east {
-			return curX + 1, curY
+			return curX + 1, curY, nil
 		} else {
-			return curX - 1, curY
+			return curX - 1, curY, nil
 		}
 	case "L":
+		if east || north {
+			return 0, 0, errors.New("invalid direction")
+		}
 		if south {
-			return curX + 1, curY
+			return curX + 1, curY, nil
 		} else {
-			return curX, curY - 1
+			return curX, curY - 1, nil
 		}
 	case "7":
+		if west || south {
+			return 0, 0, errors.New("invalid direction")
+		}
+
 		if east {
-			return curX, curY + 1
+			return curX, curY + 1, nil
 		} else {
-			return curX - 1, curY
+			return curX - 1, curY, nil
 		}
 	case "J":
+		if west || north {
+			return 0, 0, errors.New("invalid direction")
+		}
 		if south {
-			return curX - 1, curY
+			return curX - 1, curY, nil
 		} else {
-			return curX, curY - 1
+			return curX, curY - 1, nil
 		}
 	case "F":
+		if east || south {
+			return 0, 0, errors.New("invalid direction")
+		}
 		if west {
-			return curX, curY + 1
+			return curX, curY + 1, nil
 		} else {
-			return curX + 1, curY
+			return curX + 1, curY, nil
 		}
 	}
 
