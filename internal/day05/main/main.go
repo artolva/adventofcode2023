@@ -27,7 +27,7 @@ type MapRef struct {
 }
 
 func main() {
-	file, scanner := util.GetFile(fileName)
+	file, scanner := util.GetRowsFromFile(fileName)
 	defer file.Close()
 
 	scanner.Scan()

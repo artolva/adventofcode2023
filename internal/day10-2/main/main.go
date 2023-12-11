@@ -4,7 +4,6 @@ import (
 	"adventofcode2023/util"
 	"errors"
 	"fmt"
-	"log"
 	"slices"
 	"strings"
 	"time"
@@ -28,13 +27,12 @@ type PipeDetail struct {
 
 func main() {
 	now := time.Now()
-	file, scanner := util.GetFile(fileName)
-	defer file.Close()
+	lines := util.GetRowsFromFile(fileName)
 
-	var rowIndex, sX, sY int
+	var sX, sY int
 	pipeMap := make(map[int]map[int]*PipeDetail)
-	for scanner.Scan() {
-		row, newX := buildMapRow(scanner.Text())
+	for rowIndex, line := range lines {
+		row, newX := buildMapRow(line)
 		pipeMap[rowIndex] = row
 
 		if newX > -1 {
@@ -128,9 +126,6 @@ func main() {
 
 	fmt.Printf("\n======\n"+
 		"included: %d\n", included)
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
 	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }
 

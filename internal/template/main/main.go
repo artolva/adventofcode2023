@@ -11,19 +11,17 @@ import (
 // Without: 	 54265
 
 const (
-	allowStringNumbers = false
-	fileName           = "misc/calibrationDocument"
+	fileName = "misc/USE_A_REAL_FILE"
 )
 
 func main() {
 	now := time.Now()
-	file, scanner := util.GetFile(fileName)
+	file, scanner := util.GetRowsFromFile(fileName)
 	defer file.Close()
 	for scanner.Scan() {
 		//text := scanner.Text()
 	}
 
-	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}

@@ -9,13 +9,21 @@ import (
 	"strings"
 )
 
-func GetFile(fileName string) (*os.File, *bufio.Scanner) {
+func GetRowsFromFile(fileName string) []string {
 	file, err := os.Open(fileName)
+	defer file.Close()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 	scanner := bufio.NewScanner(file)
-	return file, scanner
+
+	var rows []string
+	for scanner.Scan() {
+		rows = append(rows, scanner.Text())
+	}
+
+	return rows
 }
 
 func ExtractNumbersByDelimiter(line, delimiter string) []int {

@@ -66,7 +66,7 @@ type CardHand struct {
 
 func main() {
 	//now := time.Now()
-	file, scanner := util.GetFile(fileName)
+	file, scanner := util.GetRowsFromFile(fileName)
 	defer file.Close()
 
 	handMap := make(map[CardRank][]CardHand)
