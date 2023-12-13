@@ -26,6 +26,15 @@ func GetRowsFromFile(fileName string) []string {
 	return rows
 }
 
+func ReplaceStartingAt(in, with string, at int) string {
+	out := []rune(in)
+	replacement := []rune(with)
+	for i := 0; i < len(replacement); i++ {
+		out[at+i] = replacement[i]
+	}
+	return string(out)
+}
+
 func ExtractNumbersByDelimiter(line, delimiter string) []int {
 	var nextVal string
 	var results []int

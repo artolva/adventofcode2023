@@ -3,27 +3,18 @@ package main
 import (
 	"adventofcode2023/util"
 	"fmt"
-	"log"
 	"time"
 )
 
-// With Numbers: 54450
-// Without: 	 54265
-
 const (
-	fileName = "misc/USE_A_REAL_FILE"
+	fileName = "misc/USE_FILE"
 )
 
 func main() {
 	now := time.Now()
-	file, scanner := util.GetRowsFromFile(fileName)
-	defer file.Close()
-	for scanner.Scan() {
-		//text := scanner.Text()
-	}
+	lines := util.GetRowsFromFile(fileName)
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	fmt.Printf("FILE: %+v", lines)
+
 	fmt.Printf("Processing time: %d\n", time.Now().UnixMilli()-now.UnixMilli())
 }

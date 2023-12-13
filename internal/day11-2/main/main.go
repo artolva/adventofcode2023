@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-// With Numbers: 54450
-// Guess: 	 	 726820896326
 // Correct: 	 726820169514
 
 const (
@@ -106,7 +104,7 @@ func buildGalaxyMap(coordinates []types.Coordinate, rowCount, colCount int, gala
 	galaxyMap := make(map[int]map[int]string)
 
 	galaxyId := 1
-	stepSize := 9
+	stepSize := 999999
 
 	var galaxies []Galaxy
 	var rowOffset int
