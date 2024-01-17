@@ -1,0 +1,4 @@
+github.com/google/uuid v1.4.0 h1:MtMxsa51/r9yyhkyLsVeVt0B+BGQZzpQiTQ4eHZ8bc4=
+github.com/google/uuid v1.4.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/robryanx/adventofcode2023 v0.0.0-20231210213200-43d16ec66015 h1:IzqtLLWYJqN/wZigAtU6KNpzpFwXACpMLNUKMCZgQLA=
+github.com/robryanx/adventofcode2023 v0.0.0-20231210213200-43d16ec66015/go.mod h1:62NhdVhN0hmOxYN89HFHwjEQtElWWg4NuVybpacg73o=

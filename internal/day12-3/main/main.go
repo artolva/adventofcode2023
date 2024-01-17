@@ -40,74 +40,9 @@ func main() {
 	now := time.Now()
 	lines := util.GetRowsFromFile(fileName)
 
-	var blockSets []BlockSet
-	for _, line := range lines {
-		split := strings.Split(line, " ")
-
-		var leftSide, rightSide string
-		for i := 0; i < 1; i++ {
-			if i > 0 {
-				leftSide += "?"
-				rightSide += ","
-			}
-			leftSide += split[0]
-			rightSide += split[1]
-		}
-
-		fmt.Printf("Line: %s %s\n", leftSide, rightSide)
-
-		lineLen := len(leftSide)
-		var opBlock bool
-		var currentBlock string
-		var blocks []*Block
-		for i, s := range strings.Split(leftSide, "") {
-			isOp := s == "."
-
-			if len(currentBlock) == 0 {
-				currentBlock = s
-				opBlock = isOp
-			} else if isOp == opBlock {
-				currentBlock = fmt.Sprintf("%s%s", currentBlock, s)
-			} else if len(currentBlock) > 0 {
-				blocks = append(blocks, &Block{
-					startAt: i - len(currentBlock),
-					id:      uuid.NewString(),
-					chars:   currentBlock,
-					opBlock: opBlock,
-				})
-				opBlock = !opBlock
-				currentBlock = s
-			}
-		}
-
-		blocks = append(blocks, &Block{
-			id:      uuid.NewString(),
-			opBlock: opBlock,
-			startAt: lineLen - len(currentBlock),
-			chars:   currentBlock,
-		})
-
-		var comboTotal int
-		var combos []int
-		for _, s := range strings.Split(rightSide, ",") {
-			atoi, _ := strconv.Atoi(s)
-			comboTotal += atoi
-			combos = append(combos, atoi)
-		}
-
-		//slices.Sort(combos)
-		//slices.Reverse(combos)
-		blockSets = append(blockSets, BlockSet{
-			blocks:     blocks,
-			combos:     combos,
-			lineLen:    lineLen,
-			fullChars:  leftSide,
-			comboTotal: comboTotal,
-		})
-	}
+	blockSets := getBlockSets(lines)
 
 	var totalCombos int
-
 	var blocksComplete int
 	var wg sync.WaitGroup
 	for _, blockSet := range blockSets {
@@ -272,4 +207,73 @@ func setWithoutBlock(blocks []*Block, block *Block) []*Block {
 		}
 	}
 	return newBlocks
+}
+
+func getBlockSets(lines []string) []BlockSet {
+	var blockSets []BlockSet
+	for _, line := range lines {
+		split := strings.Split(line, " ")
+
+		var leftSide, rightSide string
+		for i := 0; i < 5; i++ {
+			if i > 0 {
+				leftSide += "?"
+				rightSide += ","
+			}
+			leftSide += split[0]
+			rightSide += split[1]
+		}
+
+		fmt.Printf("Line: %s %s\n", leftSide, rightSide)
+
+		lineLen := len(leftSide)
+		var opBlock bool
+		var currentBlock string
+		var blocks []*Block
+		for i, s := range strings.Split(leftSide, "") {
+			isOp := s == "."
+
+			if len(currentBlock) == 0 {
+				currentBlock = s
+				opBlock = isOp
+			} else if isOp == opBlock {
+				currentBlock = fmt.Sprintf("%s%s", currentBlock, s)
+			} else if len(currentBlock) > 0 {
+				blocks = append(blocks, &Block{
+					startAt: i - len(currentBlock),
+					id:      uuid.NewString(),
+					chars:   currentBlock,
+					opBlock: opBlock,
+				})
+				opBlock = !opBlock
+				currentBlock = s
+			}
+		}
+
+		blocks = append(blocks, &Block{
+			id:      uuid.NewString(),
+			opBlock: opBlock,
+			startAt: lineLen - len(currentBlock),
+			chars:   currentBlock,
+		})
+
+		var comboTotal int
+		var combos []int
+		for _, s := range strings.Split(rightSide, ",") {
+			atoi, _ := strconv.Atoi(s)
+			comboTotal += atoi
+			combos = append(combos, atoi)
+		}
+
+		//slices.Sort(combos)
+		//slices.Reverse(combos)
+		blockSets = append(blockSets, BlockSet{
+			blocks:     blocks,
+			combos:     combos,
+			lineLen:    lineLen,
+			fullChars:  leftSide,
+			comboTotal: comboTotal,
+		})
+	}
+	return blockSets
 }
